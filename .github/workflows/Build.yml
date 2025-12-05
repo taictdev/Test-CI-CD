@@ -11,23 +11,34 @@ jobs:
     runs-on: self-hosted
 
     steps:
-    - name: Checkout repo
-      uses: actions/upload-artifact@v4
+    # -----------------------------
+    # 1. Checkout source code
+    # -----------------------------
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-    - name: Activate Unity license (no need for personal license)
-      run: echo "Using self-hosted editor - no activation needed"
+    # -----------------------------
+    # 2. Unity License (Self-hosted không cần)
+    # -----------------------------
+    - name: Activate Unity license
+      run: echo "Self-hosted Unity – no activation required"
 
-    - name: Build project - Windows
+    # -----------------------------
+    # 3. Build Unity Windows
+    # -----------------------------
+    - name: Build Unity project (Windows)
       run: >
         "C:\Program Files\Unity\Hub\Editor\2022.3.62f2\Editor\Unity.exe"
         -quit -batchmode -nographics
         -projectPath "${{ github.workspace }}"
-        -buildWindowsPlayer "C:\actions-build\Game.exe"
+        -buildWindowsPlayer "C:\actions-build\Game\Game.exe"
       shell: powershell
 
-    - name: Upload Build Artifact
+    # -----------------------------
+    # 4. Upload Artifact
+    # -----------------------------
+    - name: Upload Windows Build
       uses: actions/upload-artifact@v4
-      
       with:
         name: Unity-Windows-Build
-        path: C:\actions-build
+        path: C:\actions-build\Game
