@@ -50,7 +50,7 @@ jobs:
         "C:\Program Files\Unity\Hub\Editor\2022.3.62f2\Editor\Unity.exe"
         -quit -batchmode -nographics
         -projectPath "${{ github.workspace }}"
-        -executeMethod BuildScript.PerformBuildAndroid
+        #-executeMethod BuildScript.PerformBuildAndroid
         -buildTarget Android
         -customBuildPath "C:\actions-build\Android\Game.apk"
       shell: cmd
@@ -61,7 +61,7 @@ jobs:
         "C:\Program Files\Unity\Hub\Editor\2022.3.62f2\Editor\Unity.exe"
         -quit -batchmode -nographics
         -projectPath "${{ github.workspace }}"
-        -executeMethod BuildScript.PerformBuildWebGL
+        #-executeMethod BuildScript.PerformBuildWebGL
         -buildTarget WebGL
         -customBuildPath "C:\actions-build\WebGL"
       shell: cmd
