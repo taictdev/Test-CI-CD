@@ -1,41 +1,32 @@
-name: Build project
+name: Unity Build (Windows)
 
 on:
-  workflow_dispatch:
-    inputs:
-      targetPlatform:
-        description: 'Nền tảng để build'
-        required: true
-        type: choice
-        options:
-          - StandaloneWindows64
-          - Android
-          - WebGL
+  push:
+    branches: [ main ]
+  pull_request:
 
 jobs:
-  buildForAllSupportedPlatforms:
-    name: Build for ${{ github.event.inputs.targetPlatform }}
-    runs-on: ubuntu-latest
+  build:
+    name: Build Unity Project
+    runs-on: self-hosted
+
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          lfs: true
-      - uses: actions/cache@v3
-        with:
-          path: Library
-          key: Library-${{ github.event.inputs.targetPlatform }}
-          restore-keys: Library-
-      - if: github.event.inputs.targetPlatform == 'Android'
-        uses: jlumbroso/free-disk-space@v1.3.1
-      - uses: game-ci/unity-builder@v4
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        with:
-          targetPlatform: ${{ github.event.inputs.targetPlatform }}
-      - uses: actions/upload-artifact@v4
-        with:
-          name: Build-${{ github.event.inputs.targetPlatform }}
-          path: build/${{ github.event.inputs.targetPlatform }}
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Activate Unity license (no need for personal license)
+      run: echo "Using self-hosted editor - no activation needed"
+
+    - name: Build project - Windows
+      run: >
+        "C:\Program Files\Unity\Hub\Editor\2022.3.62f2\Editor\Unity.exe"
+        -quit -batchmode -nographics
+        -projectPath "${{ github.workspace }}"
+        -buildWindowsPlayer "C:\actions-build\Game.exe"
+      shell: powershell
+
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: Unity-Windows-Build
+        path: C:\actions-build
