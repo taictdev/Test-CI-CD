@@ -33,7 +33,7 @@ jobs:
         -quit -batchmode -nographics
         -projectPath "${{ github.workspace }}"
         -buildWindowsPlayer "C:\actions-build\Game\Game.exe"
-      shell: powershell
+      shell: cmd
 
     # -----------------------------
     # 4. Upload Artifact
