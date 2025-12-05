@@ -1,13 +1,22 @@
-name: Unity Build (Windows)
+name: Unity Build (Windows, Android, WebGL)
 
 on:
   workflow_dispatch:
+    inputs:
+      build-target:
+        description: 'Select build target'
+        required: true
+        default: 'Windows'
+        type: choice
+        options:
+          - Windows
+          - Android
+          - WebGL
 
 jobs:
   build:
-    name: Build Unity Project
+    name: Build Unity Project (${{ github.event.inputs.build-target }})
     runs-on: self-hosted
-    
 
     steps:
     # -----------------------------
@@ -24,9 +33,10 @@ jobs:
       shell: cmd
 
     # -----------------------------
-    # 3. Build Unity Windows
+    # 3. Build Unity Project Based on Selected Target
     # -----------------------------
     - name: Build Unity project (Windows)
+      if: ${{ github.event.inputs.build-target == 'Windows' }}
       run: >
         "C:\Program Files\Unity\Hub\Editor\2022.3.62f2\Editor\Unity.exe"
         -quit -batchmode -nographics
@@ -34,11 +44,48 @@ jobs:
         -buildWindowsPlayer "C:\actions-build\Game\Game.exe"
       shell: cmd
 
+    - name: Build Unity project (Android)
+      if: ${{ github.event.inputs.build-target == 'Android' }}
+      run: >
+        "C:\Program Files\Unity\Hub\Editor\2022.3.62f2\Editor\Unity.exe"
+        -quit -batchmode -nographics
+        -projectPath "${{ github.workspace }}"
+        -executeMethod BuildScript.PerformBuildAndroid
+        -buildTarget Android
+        -customBuildPath "C:\actions-build\Android\Game.apk"
+      shell: cmd
+
+    - name: Build Unity project (WebGL)
+      if: ${{ github.event.inputs.build-target == 'WebGL' }}
+      run: >
+        "C:\Program Files\Unity\Hub\Editor\2022.3.62f2\Editor\Unity.exe"
+        -quit -batchmode -nographics
+        -projectPath "${{ github.workspace }}"
+        -executeMethod BuildScript.PerformBuildWebGL
+        -buildTarget WebGL
+        -customBuildPath "C:\actions-build\WebGL"
+      shell: cmd
+
     # -----------------------------
     # 4. Upload Artifact
     # -----------------------------
     - name: Upload Windows Build
+      if: ${{ github.event.inputs.build-target == 'Windows' }}
       uses: actions/upload-artifact@v4
       with:
         name: Unity-Windows-Build
         path: C:\actions-build\Game
+
+    - name: Upload Android Build
+      if: ${{ github.event.inputs.build-target == 'Android' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: Unity-Android-Build
+        path: C:\actions-build\Android\Game.apk
+
+    - name: Upload WebGL Build
+      if: ${{ github.event.inputs.build-target == 'WebGL' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: Unity-WebGL-Build
+        path: C:\actions-build\WebGL
